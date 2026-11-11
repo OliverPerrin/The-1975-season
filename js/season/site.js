@@ -322,10 +322,10 @@
       const g = document.createElementNS(NS, 'g');
       g.setAttribute('class', 'yr-mark' + (warm ? ' is-warm' : ''));
       const rect = document.createElementNS(NS, 'rect');
-      rect.setAttribute('x', p[0] - 15);
-      rect.setAttribute('y', p[1] - 10);
-      rect.setAttribute('width', 30);
-      rect.setAttribute('height', 20);
+      rect.setAttribute('x', p[0] - 10);
+      rect.setAttribute('y', p[1] - 14);
+      rect.setAttribute('width', 20);
+      rect.setAttribute('height', 28);
       const tx = document.createElementNS(NS, 'text');
       tx.setAttribute('x', p[0]);
       tx.setAttribute('y', p[1] + 4.5);
@@ -629,7 +629,7 @@
       const H = cv.height;
       if (!Wd || !H) return;
       const s = Wd / 1000;
-      const floor = H * 0.72;
+      const floor = H * 0.78;
       const txt = input.value || ' ';
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = 1;
@@ -652,18 +652,52 @@
         for (let x = (rowN % 2 ? -bw / 2 : 0); x < Wd; x += bw) ctx.strokeRect(x, y, bw, bh);
       }
 
-      let fs = 150 * s;
-      const font = () => { ctx.font = fs + 'px "Tilt Neon", "Hanken Grotesk", sans-serif'; };
-      font();
-      while (ctx.measureText(txt).width > Wd * 0.72 && fs > 22 * s) { fs *= 0.94; font(); }
-      const tw = ctx.measureText(txt).width;
+      // The box is tall, like the band's own, so the words stack inside it. Try one to four
+      // lines and keep whichever lets the lettering be biggest.
+      const boxed = boxToggle.checked;
       const cx = Wd / 2;
       const cy = floor * 0.5;
-      const pad = fs * 0.42;
-      const bx = cx - tw / 2 - pad;
-      const by = cy - fs * 0.62 - pad * 0.4;
-      const bwid = tw + pad * 2;
-      const bhei = fs * 1.24 + pad * 0.8;
+      const bhei = Math.min(floor * 0.84, (Wd * 0.9) / 0.72);
+      const bwid = bhei * 0.72;
+      const bx = cx - bwid / 2;
+      const by = cy - bhei / 2;
+      const areaW = boxed ? bwid * 0.8 : Wd * 0.82;
+      const areaH = boxed ? bhei * 0.66 : floor * 0.72;
+      const LEAD = 1.06;
+      const words = txt.trim().split(/\s+/).filter(Boolean);
+      if (!words.length) words.push(' ');
+      const font = (px) => { ctx.font = px + 'px "Tilt Neon", "Hanken Grotesk", sans-serif'; };
+      font(100);
+      const widthOf = (from, to) => ctx.measureText(words.slice(from, to).join(' ')).width;
+      let best = { fs: 0, lines: [txt] };
+      const tryLines = (n) => {
+        // every way of cutting the words into n runs; keep the one whose widest line is narrowest
+        let pick = null;
+        const walk = (start, left, cuts, widest) => {
+          if (left === 1) {
+            const w = Math.max(widest, widthOf(start, words.length));
+            if (!pick || w < pick.w) pick = { w, cuts: cuts.concat(words.length) };
+            return;
+          }
+          for (let end = start + 1; end <= words.length - (left - 1); end++) {
+            walk(end, left - 1, cuts.concat(end), Math.max(widest, widthOf(start, end)));
+          }
+        };
+        walk(0, n, [], 0);
+        if (!pick) return;
+        const fsN = Math.min((areaW / Math.max(1, pick.w)) * 100, areaH / (n * LEAD), 170 * s);
+        if (fsN > best.fs) {
+          const lines = [];
+          let from = 0;
+          pick.cuts.forEach((to) => { lines.push(words.slice(from, to).join(' ')); from = to; });
+          best = { fs: fsN, lines };
+        }
+      };
+      for (let n = 1; n <= Math.min(4, words.length); n++) tryLines(n);
+      const fs = best.fs;
+      const lines = best.lines;
+      font(fs);
+      const lineY = (i) => cy + (i - (lines.length - 1) / 2) * fs * LEAD;
 
       // light thrown on the wall
       const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Wd * 0.55);
@@ -685,8 +719,8 @@
           ctx.shadowBlur = blur;
           ctx.globalAlpha = a * alpha;
           ctx.fillStyle = colour.col;
-          ctx.fillText(txt, cx, cy);
-          if (boxToggle.checked) {
+          lines.forEach((ln, i) => ctx.fillText(ln, cx, lineY(i)));
+          if (boxed) {
             ctx.strokeStyle = colour.col;
             ctx.lineWidth = 6 * s;
             ctx.strokeRect(bx, by, bwid, bhei);
@@ -696,8 +730,8 @@
           ctx.shadowBlur = 4 * s;
           ctx.globalAlpha = alpha;
           ctx.fillStyle = colour.core;
-          ctx.fillText(txt, cx, cy);
-          if (boxToggle.checked) {
+          lines.forEach((ln, i) => ctx.fillText(ln, cx, lineY(i)));
+          if (boxed) {
             ctx.strokeStyle = colour.core;
             ctx.lineWidth = 2.4 * s;
             ctx.strokeRect(bx, by, bwid, bhei);
@@ -713,7 +747,7 @@
       ctx.rect(0, floor, Wd, H - floor);
       ctx.clip();
       ctx.translate(0, floor);
-      ctx.scale(1, -0.5);
+      ctx.scale(1, -0.34);
       ctx.translate(0, -floor);
       tubes(power * 0.42, false);
       ctx.restore();

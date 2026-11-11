@@ -5,6 +5,7 @@
 
 :root {
   --hub-ink: #ffffff;
+  --hub-ink-mid: #ffffff;
   --chrome-ink: #ffffff;
   --shell-font: 'Jost', 'Avenir Next', 'Century Gothic', 'Helvetica Neue', sans-serif;
 }
@@ -68,6 +69,8 @@ body {
   font-weight: 300;
   letter-spacing: 0.02em;
   pointer-events: none;
+  color: var(--hub-ink-mid);
+  transition: color 320ms linear;
 }
 
 #years {
@@ -109,6 +112,7 @@ body {
   font: inherit;
   cursor: pointer;
   transform-origin: 50% 50%;
+  will-change: transform;
   -webkit-tap-highlight-color: transparent;
 }
 .portal:focus { outline: none; }
@@ -287,3 +291,8 @@ body[data-mode='hub'] #chrome { color: var(--hub-ink); transition: color 320ms l
   pointer-events: auto;
 }
 #hub-title a:hover { opacity: 1; }
+
+/* Hub lettering lies across more than one album's colour now that the rectangles are tall,
+   so it inverts whatever is behind it rather than taking a single ink. */
+#hub-title, #hub-hint, #years { color: #fff; mix-blend-mode: difference; }
+body[data-mode='hub'] #chrome { color: #fff; mix-blend-mode: difference; }

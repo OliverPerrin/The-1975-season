@@ -1071,7 +1071,7 @@
         hg.fillRect(0, 0, w, h);
       });
       // a great neon rectangle somewhere behind the haze, out of focus, breathing
-      const rw = w * (w > h ? 0.6 : 0.78), rh = Math.min(h * 0.46, rw * (w > h ? 0.62 : 1.25));
+      const rh = Math.min(h * 0.58, (w * 0.78) / 0.72), rw = rh * 0.72; // always taller than wide
       const rx = w * 0.5 - rw / 2, ry = h * 0.4 - rh / 2 - breath * 0.3;
       const neonCol = mix(C.hot, hex('#b98cf0'), deep * 0.7);
       const a = lerp(0.62, 0.3, deep) * (0.75 + inhale * 0.25);
@@ -1214,7 +1214,7 @@
       switch (b.kind) {
         case 'frame': {
           const on = s.flick > 0 ? (Math.sin(t * 90) > -0.1 ? 1 : 0.25) : 1;
-          const w = r * 1.85, h = r * 1.12;
+          const w = r * 1.2, h = r * 1.68;
           g.beginPath();
           if (g.roundRect) g.roundRect(-w / 2, -h / 2, w, h, r * 0.1); else g.rect(-w / 2, -h / 2, w, h);
           g.fillStyle = rgba(C.white, 0.28 * on); g.fill();

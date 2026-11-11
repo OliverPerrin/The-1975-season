@@ -83,15 +83,23 @@ body.scrolled #nav { background: rgba(6, 8, 13, 0.78); backdrop-filter: blur(14p
 body.in-drive #nav { transform: translateY(-110%); }
 body.in-drive #nav:focus-within { transform: none; }
 #nav .mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
   font-family: var(--neon);
   font-size: 17px;
   letter-spacing: 0.04em;
   text-decoration: none;
-  padding: 6px 12px 5px;
-  border: 1.5px solid #fff;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.55), inset 0 0 10px rgba(255, 255, 255, 0.28);
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
   white-space: nowrap;
+}
+/* the box: always taller than it is wide */
+#nav .mark i {
+  display: block;
+  width: 17px;
+  height: 24px;
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7), inset 0 0 6px rgba(255, 255, 255, 0.35);
 }
 #links { display: flex; gap: 22px; margin-left: auto; }
 #links a { text-decoration: none; color: var(--dim); padding: 6px 0; border-bottom: 1px solid transparent; }
@@ -416,8 +424,8 @@ p { margin: 0 0 1em; }
 
 /* ---------- sign maker ---------- */
 
-.signer { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: clamp(18px, 3vw, 40px); align-items: start; }
-#sign-canvas { display: block; width: 100%; aspect-ratio: 2 / 1; background: #05070b; border: 1px solid var(--line); }
+.signer { display: grid; grid-template-columns: minmax(0, 580px) 300px; justify-content: start; gap: clamp(18px, 3vw, 40px); align-items: start; }
+#sign-canvas { display: block; width: 100%; max-width: 580px; aspect-ratio: 5 / 6; background: #05070b; border: 1px solid var(--line); }
 .signer__controls { display: grid; gap: 20px; padding: 22px; background: var(--pane); border: 1px solid var(--line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .signer__text { display: grid; gap: 8px; }
 .signer__text span { color: var(--dim); font-size: 15px; }
@@ -507,7 +515,6 @@ p { margin: 0 0 1em; }
   .album details ol { columns: 1; }
   .credits { grid-template-columns: 1fr; padding: 20px; }
   .credits__photos ul { columns: 1; }
-  #sign-canvas { aspect-ratio: 4 / 3; }
   .room__bar a { display: none; }
   .dials { padding: 20px; }
 }
@@ -521,6 +528,7 @@ p { margin: 0 0 1em; }
 /* very narrow phones: keep the wordmark, Menu and Sound on one row */
 @media (max-width: 380px) {
   #nav { gap: 6px; padding-left: 12px; padding-right: 12px; font-size: 14px; }
-  #nav .mark { font-size: 15px; padding: 5px 8px 4px; }
+  #nav .mark { font-size: 15px; gap: 8px; }
+  #nav .mark i { width: 13px; height: 18px; }
   #nav button { padding: 6px 8px; }
 }

@@ -72,8 +72,9 @@
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     // The rectangle takes the window's own proportions, so the album around it always fills the screen.
-    const aspect = clamp(vw / vh, 0.42, 2.4);
-    const W = Math.round(0.64 * Math.min(vw, vh * aspect));
+    // Always taller than wide, like the band's own box. On a phone it takes the screen's proportions.
+    const aspect = Math.min(0.72, clamp(vw / vh, 0.42, 2.4));
+    const W = Math.round(Math.min(0.64 * vw, 0.7 * vh * aspect));
     const H = Math.round(W / aspect);
     const VW = aspect >= 1 ? 1500 : 1000;
     const VH = Math.round(VW / aspect);
@@ -134,7 +135,9 @@
     const cue = t.upper ? 'STEP INSIDE' : 'step inside';
     const pid = 'run-' + album.id;
     // The title runs along the top edge and, if it is long enough, turns the corner and heads down the right side.
-    const run = `M ${m} ${top} H ${VW - m - 34} Q ${VW - m} ${top} ${VW - m} ${top + 34} V ${VH - 170}`;
+    // in a tall rectangle the title turns the corner sooner, so keep it clear of the frame on the right
+    const mr = tall ? Math.max(m, Math.round(t.size * 0.75) + 50) : m;
+    const run = `M ${m} ${top} H ${VW - mr - 34} Q ${VW - mr} ${top} ${VW - mr} ${top + 34} V ${VH - 170}`;
     return `<svg class="portal__art" viewBox="0 0 ${VW} ${VH}" aria-hidden="true">` +
       `<defs><path id="${pid}" d="${run}"/></defs>` +
       frame(album.id, g) +
@@ -254,26 +257,37 @@
 
   function paint() {
     dirty = false;
-    let behind = 0;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let back = 0;       // the rectangle furthest behind us
+    let backD = 9;
+    let corner = -1;    // the nearest rectangle big enough to fill the window's corners
+    let cornerD = -9;
+    let middle = -1;    // the nearest one tall enough to sit behind the hint at the bottom
+    let middleD = -9;
     for (let i = 0; i < N; i++) {
       const d = depth(i);
       const { el, art: a } = portals[i];
-      if (d < -1.5) {
-        el.style.visibility = 'hidden';
-        behind = i;
-        continue;
-      }
       const s = Math.pow(NEST, -d);
       const drift = reduced.matches ? 0 : 16 * d;
-      el.style.visibility = 'visible';
+      if (d < backD) { backD = d; back = i; }
+      if (d < -0.25 && geom.H * s >= vh) {
+        if (d > middleD) { middleD = d; middle = i; }
+        if (geom.W * s >= vw && d > cornerD) { cornerD = d; corner = i; }
+      }
       el.style.transform = `translate3d(${(pointer.sx * drift).toFixed(2)}px, ${(pointer.sy * drift).toFixed(2)}px, 0) scale(${s.toFixed(5)})`;
       el.style.zIndex = String(100 + Math.round(d * 10));
       // Never fully opaque: an opaque layer makes the compositor cut the one beneath it into strips, which leaves seams.
       el.style.opacity = clamp((2.5 - d) / 0.35, 0, 0.999).toFixed(3);
-      a.style.opacity = clamp(1 + d * 2.6, 0, 1).toFixed(3);
+      const ao = clamp(1 + d * 2.6, 0, 1);
+      a.style.opacity = ao.toFixed(3);
+      a.style.visibility = ao === 0 ? 'hidden' : 'visible';
       el.tabIndex = Math.abs(d) < 0.5 ? 0 : -1;
     }
-    document.body.style.backgroundColor = ALBUMS[behind].ground;
+    // Whatever was behind the furthest rectangle is the album before it; the page takes that colour,
+    // so nothing jumps when a rectangle wraps round from the back to the middle.
+    const beyond = mod(back - 1, N);
+    document.body.style.backgroundColor = ALBUMS[beyond].ground;
 
     const f = mod(Math.round(p), N);
     if (f !== front) {
@@ -282,11 +296,13 @@
       portals.forEach((o, i) => o.el.classList.toggle('is-current', i === f));
       [...yearsNav.children].forEach((b, i) => b.setAttribute('aria-current', i === f ? 'true' : 'false'));
     }
-    // What fills the screen around the front rectangle is the album before it.
-    const s = mod(Math.floor(p + 0.42) - 1, N);
-    if (s !== surround) {
-      surround = s;
-      document.documentElement.style.setProperty('--hub-ink', ALBUMS[s].ink);
+    // The corner controls and the hint each take the ink of whatever is actually behind them.
+    const ink = (corner === -1 ? beyond : corner) * N + (middle === -1 ? beyond : middle);
+    if (ink !== surround) {
+      surround = ink;
+      const root = document.documentElement.style;
+      root.setProperty('--hub-ink', ALBUMS[corner === -1 ? beyond : corner].ink);
+      root.setProperty('--hub-ink-mid', ALBUMS[middle === -1 ? beyond : middle].ink);
     }
   }
 
