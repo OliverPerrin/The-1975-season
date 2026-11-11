@@ -665,6 +665,10 @@
       const areaH = boxed ? bhei * 0.66 : floor * 0.72;
       const LEAD = 1.06;
       const words = txt.trim().split(/\s+/).filter(Boolean);
+      // the band's name never breaks across lines
+      for (let i = words.length - 2; i >= 0; i--) {
+        if (/^the$/i.test(words[i]) && /^1975\b/.test(words[i + 1])) words.splice(i, 2, words[i] + ' ' + words[i + 1]);
+      }
       if (!words.length) words.push(' ');
       const font = (px) => { ctx.font = px + 'px "Tilt Neon", "Hanken Grotesk", sans-serif'; };
       font(100);
