@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The 1975, in five rectangles</title>
+<meta name="description" content="A fan-made toy: five albums by The 1975, each one a room inside the last.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&family=Courier+Prime:wght@400;700&family=Cormorant+Garamond:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/shell.css">
+</head>
+<body>
+
+<main id="hub">
+  <h1 id="hub-title">The 1975 <span>five albums, each one inside the last</span> <a href="index.html" target="_top">back to The 1975 season</a></h1>
+  <div id="tunnel"></div>
+  <nav id="years" aria-label="Albums by year"></nav>
+  <p id="hub-hint"></p>
+</main>
+
+<div id="stage"></div>
+
+<div id="chrome">
+  <button id="leave" type="button" hidden>
+    <svg viewBox="0 0 30 20" width="30" height="20" aria-hidden="true">
+      <rect x="1" y="1" width="28" height="18" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="10" y="6.5" width="10" height="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+    <span>back out</span>
+  </button>
+  <button id="sound" type="button" aria-pressed="false">sound off</button>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/shell.js"></script>
+</body>
+</html>

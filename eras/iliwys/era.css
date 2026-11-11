@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..500,0..100;1,9..144,300..500,0..100&display=swap');
+
+/* I like it when you sleep: a pink dream that breathes. */
+
+.era-iliwys {
+  --iliwys-ink: #c4006a;
+  --iliwys-hot: #ff2d95;
+  --iliwys-font: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  background: #f6cedb;
+  color: var(--iliwys-ink);
+  font-family: var(--iliwys-font);
+  font-variation-settings: 'SOFT' 100;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.era-iliwys .iliwys-stage {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: default;
+}
+.era-iliwys .iliwys-stage.is-over { cursor: grab; }
+.era-iliwys .iliwys-stage.is-holding { cursor: grabbing; }
+
+.era-iliwys .iliwys-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Invisible keyboard handles that sit on top of each glowing thing while it has focus. */
+.era-iliwys .iliwys-key {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  font-size: 1px;
+  overflow: hidden;
+  pointer-events: none;
+  outline: none;
+}
+.era-iliwys .iliwys-key:focus-visible {
+  outline: 2px solid var(--iliwys-ink);
+  outline-offset: 6px;
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.35), 0 0 34px 14px rgba(255, 45, 149, 0.28);
+}
+
+/* The name of a song, written in light beside it. */
+.era-iliwys .iliwys-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 21px;
+  font-variation-settings: 'SOFT' 100, 'opsz' 40;
+  letter-spacing: 0.005em;
+  color: var(--iliwys-ink);
+  text-shadow: 0 0 2px #fff, 0 0 12px #fff, 0 0 26px rgba(255, 45, 149, 0.55);
+  opacity: 0;
+  transition: opacity 380ms ease;
+  will-change: transform;
+}
+.era-iliwys .iliwys-label.is-on { opacity: 1; }
+.era-iliwys .iliwys-label-n {
+  font-style: normal;
+  font-size: 0.6em;
+  vertical-align: 0.5em;
+  margin-right: 0.35em;
+  font-variation-settings: 'SOFT' 100, 'opsz' 9;
+  opacity: 0.75;
+}
+
+/* The title track is the horizon itself; its name lies along it. */
+.era-iliwys .iliwys-horizon {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(64px, 9.5vh, 96px);
+  width: min(92vw, 1040px);
+  transform: translateX(-50%);
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 6px 12px;
+  margin: 0;
+  pointer-events: none;
+  font-family: inherit;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(17px, 1.9vw, 29px);
+  line-height: 1.22;
+  font-variation-settings: 'SOFT' 100, 'opsz' 72;
+  letter-spacing: 0.002em;
+  text-align: center;
+  text-wrap: balance;
+  color: #fff;
+  text-shadow: 0 0 1px #ff6fb1, 0 0 8px rgba(255, 45, 149, 0.9), 0 0 22px rgba(255, 45, 149, 0.55), 0 0 44px rgba(255, 255, 255, 0.6);
+  border-radius: 30px;
+  will-change: opacity;
+}
+.era-iliwys .iliwys-horizon:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+}
+
+.era-iliwys .iliwys-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px max(16px, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+.era-iliwys .iliwys-whisper {
+  margin: 0;
+  max-width: 34em;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
+  font-variation-settings: 'SOFT' 100, 'opsz' 14;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(196, 0, 106, 0.55), 0 0 1px rgba(196, 0, 106, 0.6);
+  pointer-events: none;
+}
+.era-iliwys .iliwys-whisper span { display: block; }
+.era-iliwys .iliwys-whisper .iliwys-now {
+  font-style: italic;
+  font-size: 17px;
+}
+.era-iliwys .iliwys-whisper a {
+  pointer-events: auto;
+  color: inherit;
+  font-style: normal;
+  font-size: 13px;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  margin-left: 0.6em;
+  opacity: 0.85;
+}
+.era-iliwys .iliwys-whisper a:hover { opacity: 1; }
+.era-iliwys .iliwys-whisper a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 2px; }
+
+/* The sleeper's eye: tells you how deep they are, and wakes or lulls them. */
+.era-iliwys .iliwys-eye {
+  appearance: none;
+  pointer-events: auto;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 0 0 1px rgba(255, 45, 149, 0.35), 0 0 18px rgba(255, 45, 149, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.4);
+  color: #fff;
+  font-family: inherit;
+  font-style: italic;
+  font-size: 15px;
+  font-variation-settings: 'SOFT' 100, 'opsz' 14;
+  text-shadow: 0 0 6px rgba(196, 0, 106, 0.6);
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+.era-iliwys .iliwys-eye:hover { background: rgba(255, 255, 255, 0.3); }
+.era-iliwys .iliwys-eye:focus-visible { outline: 2px solid var(--iliwys-ink); outline-offset: 3px; }
+.era-iliwys .iliwys-eye svg { width: 34px; height: 20px; overflow: visible; filter: drop-shadow(0 0 3px rgba(255, 45, 149, 0.8)); }
+.era-iliwys .iliwys-eye path,
+.era-iliwys .iliwys-eye line { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; }
+.era-iliwys .iliwys-eye circle { fill: #fff; }
+.era-iliwys .iliwys-eye-word { min-width: 6.2em; text-align: left; }
+
+.era-iliwys .iliwys-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .era-iliwys .iliwys-horizon { bottom: 104px; font-size: 17px; width: calc(100vw - 32px); padding: 4px 6px; }
+  .era-iliwys .iliwys-foot { padding: 0 14px max(14px, env(safe-area-inset-bottom)); gap: 10px; }
+  .era-iliwys .iliwys-whisper { font-size: 12.5px; max-width: calc(100% - 128px); }
+  .era-iliwys .iliwys-whisper .iliwys-now { font-size: 15px; }
+  .era-iliwys .iliwys-eye { font-size: 13.5px; padding: 7px 11px 7px 8px; gap: 7px; }
+  .era-iliwys .iliwys-eye svg { width: 28px; height: 17px; }
+  .era-iliwys .iliwys-eye-word { min-width: 0; }
+  .era-iliwys .iliwys-label { font-size: 17px; }
+}

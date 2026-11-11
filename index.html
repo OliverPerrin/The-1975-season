@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The 1975 season</title>
+<meta name="description" content="A fan-made site for the months when The 1975 sound best: rain on the glass, orange street lamps, wet roads and the first snow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=Tilt+Neon&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/season.css">
+<link rel="stylesheet" href="css/season-drive.css">
+</head>
+<body>
+
+<canvas id="weather" aria-hidden="true"></canvas>
+<canvas id="leaves" aria-hidden="true"></canvas>
+<div id="grain" aria-hidden="true"></div>
+
+<header id="nav">
+  <a class="mark" href="#top">The 1975 season</a>
+  <button id="menu" type="button" aria-expanded="false" aria-controls="links">Menu</button>
+  <nav id="links" aria-label="Sections">
+    <a href="#why">Why now</a>
+    <a href="#board">The board</a>
+    <a href="#forecast">Forecast</a>
+    <a href="#drive">Night drive</a>
+    <a href="#albums">Albums</a>
+    <a href="#sign">Make a sign</a>
+  </nav>
+  <button id="sound" type="button" aria-pressed="false">Sound off</button>
+</header>
+
+<main>
+
+  <section id="top" class="scene hero" data-weather="rain:.75 late:.8 fog:1 sign:1 pal:sodium dim:1">
+    <div class="hero__text">
+      <h1>It’s The 1975 season.</h1>
+      <p class="lede">A fan site for the months when it is dark by half four, the roads are wet, and this band sounds exactly right.</p>
+      <p id="season-count" class="count"></p>
+    </div>
+    <p class="hero__hint">The glass has steamed up. Wipe it.</p>
+  </section>
+
+  <section id="why" class="scene" data-weather="rain:.3 late:.45 fog:.12 leaves:1 pal:sodium dim:.95">
+    <div class="wrap split">
+      <div class="prose">
+        <h2>Nobody official ever called them a cold-weather band.</h2>
+        <p>The internet did that. Search the tags and it is all there: autumn playlists with the slow ones at the top, “tumblr autumn” edits in black and white, a winter song about the drive home two days before Christmas, and people announcing every October that it is The 1975 season again.</p>
+        <p>The calendar mostly agrees. Four of the five albums came out between September and February.</p>
+      </div>
+      <figure class="year">
+        <div id="year-dial"></div>
+        <ol id="year-list"></ol>
+      </figure>
+    </div>
+  </section>
+
+  <div class="band" data-band="0"></div>
+
+  <section id="board" class="scene" data-weather="rain:.6 late:.75 fog:.18 pal:neon dim:.8">
+    <div class="wrap">
+      <div class="head">
+        <h2>What gets pinned</h2>
+        <p>We went through the Pinterest boards and the TikTok tags. The same handful of things come up every time: black and white, a box, neon, rain on glass, a coat, a record.</p>
+      </div>
+      <div id="chips" class="chips" role="group" aria-label="Filter the board by weather"></div>
+      <div id="pins" class="pins"></div>
+    </div>
+  </section>
+
+  <section id="forecast" class="scene" data-weather="live:forecast">
+    <div class="wrap">
+      <div class="head">
+        <h2>Tonight’s forecast</h2>
+        <p>Set the weather outside your window. The site changes to match, and picks the song for it.</p>
+      </div>
+      <div class="desk">
+        <form class="dials" onsubmit="return false">
+          <label class="dial">
+            <span class="dial__name">Rain</span>
+            <input id="f-rain" type="range" min="0" max="100" value="62">
+            <span class="dial__ends"><span>dry</span><span>pouring</span></span>
+          </label>
+          <label class="dial">
+            <span class="dial__name">Cold</span>
+            <input id="f-cold" type="range" min="0" max="100" value="50">
+            <span class="dial__ends"><span>mild</span><span>freezing</span></span>
+          </label>
+          <label class="dial">
+            <span class="dial__name">Late</span>
+            <input id="f-late" type="range" min="0" max="100" value="70">
+            <span class="dial__ends"><span>dusk</span><span>4am</span></span>
+          </label>
+        </form>
+        <div class="verdict" aria-live="polite">
+          <p id="f-line" class="verdict__line"></p>
+          <p class="verdict__label">Put this on</p>
+          <p id="f-song" class="verdict__song"></p>
+          <p id="f-from" class="verdict__from"></p>
+          <p class="verdict__more"><a id="f-listen" href="#" target="_blank" rel="noopener">Find it on Spotify</a></p>
+          <p id="f-also" class="verdict__also"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="band" data-band="1"></div>
+
+  <section id="drive" class="scene scene--flush" data-weather="rain:.8 late:.9 fog:.2 pal:sodium dim:.5">
+    <div class="wrap">
+      <div class="head">
+        <h2>The long way home</h2>
+        <p>Tune the radio. Every station is an album. Pull over when you want to go inside.</p>
+      </div>
+    </div>
+    <div id="drive-mount" class="drive-host"></div>
+  </section>
+
+  <section id="albums" class="scene" data-weather="rain:.45 late:.7 fog:.15 pal:mono dim:.75">
+    <div class="wrap">
+      <div class="head">
+        <h2>Five albums, five rooms</h2>
+        <p>Every album has a room you can walk into and play with. They open here, on top of the page. <a href="rooms.html">Or fall through all five in a row.</a></p>
+      </div>
+      <ol id="album-list" class="albums"></ol>
+    </div>
+  </section>
+
+  <div class="band" data-band="2"></div>
+
+  <section id="sign" class="scene" data-weather="rain:.55 late:.85 fog:.25 pal:neon dim:.7">
+    <div class="wrap">
+      <div class="head">
+        <h2>Make a sign</h2>
+        <p>The second album gave every song its own neon sign. Have one of your own.</p>
+      </div>
+      <div class="signer">
+        <canvas id="sign-canvas" role="img" aria-label="Your words as a neon sign on a wet wall"></canvas>
+        <div class="signer__controls">
+          <label class="signer__text">
+            <span>Your words</span>
+            <input id="sign-text" type="text" maxlength="28" value="it's the 1975 season" autocomplete="off" spellcheck="false">
+          </label>
+          <div class="signer__row" role="group" aria-label="Tube colour" id="sign-colours"></div>
+          <label class="signer__check"><input id="sign-box" type="checkbox" checked> Put it in the box</label>
+          <button id="sign-save" type="button" class="btn">Save the sign as a picture</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="end" class="scene" data-weather="rain:.1 snow:1 late:.6 fog:.1 pal:cold dim:.9">
+  <div class="wrap">
+    <h2 class="bye">See you in September.</h2>
+    <div class="credits">
+      <div>
+        <h3>About this site</h3>
+        <p>Fan-made, for fun. It is not affiliated with the band or their label. Song and album titles belong to their owners. Nothing here is quoted or sampled, and every sound is synthesised in your browser.</p>
+      </div>
+      <div>
+        <h3>What we read</h3>
+        <ul id="sources"></ul>
+      </div>
+      <div class="credits__photos">
+        <h3>Photographs</h3>
+        <ul id="photo-credits"></ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div id="room" hidden>
+  <div class="room__bar">
+    <span id="room-title"></span>
+    <a id="room-tab" href="rooms.html" target="_blank" rel="noopener">Open in its own tab</a>
+    <button id="room-close" type="button">Close the room</button>
+  </div>
+  <iframe id="room-frame" title="Album room" allow="autoplay"></iframe>
+</div>
+
+<dialog id="lightbox">
+  <button id="lightbox-close" type="button">Close</button>
+  <img id="lightbox-img" alt="">
+  <p id="lightbox-cap"></p>
+</dialog>
+
+<script src="js/data.js"></script>
+<script src="js/audio.js"></script>
+<script src="assets/photos/manifest.js"></script>
+<script src="js/season/songs.js"></script>
+<script src="js/season/weather.js"></script>
+<script src="js/season/drive.js"></script>
+<script src="js/season/site.js"></script>
+</body>
+</html>

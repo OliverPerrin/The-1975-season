@@ -1,0 +1,501 @@
+@import url('https://fonts.googleapis.com/css2?family=Doto:wght@500;800&family=Saira+Semi+Condensed:wght@400;500;600&display=swap');
+
+/* The long way home: a night drive and a car radio. Every selector is .nd- prefixed. */
+
+.nd-root {
+  --nd-ink: rgb(255, 166, 88);
+  --nd-face: #121318;
+  --nd-face-hi: #1d1f26;
+  --nd-glass: #050608;
+  --nd-label: #8b8f9c;
+  --nd-dot: 'Doto', 'VT323', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --nd-sans: 'Saira Semi Condensed', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 560px;
+  overflow: hidden;
+  background: #04060c;
+  color: #d9dbe2;
+  font-family: var(--nd-sans);
+  touch-action: pan-y;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.nd-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---------- console: radio head unit plus a row of switches ---------- */
+
+.nd-console {
+  position: absolute;
+  top: 66%;
+  left: 38%;
+  width: 540px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 2;
+}
+
+.nd-unit {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'display knob'
+    'presets knob'
+    'actions actions';
+  column-gap: 18px;
+  row-gap: 10px;
+  padding: 14px 16px 12px;
+  border-radius: 10px 10px 14px 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 30%),
+    linear-gradient(180deg, var(--nd-face-hi), var(--nd-face) 60%, #0c0d11);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.6),
+    0 0 0 1px #050506,
+    0 18px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* the dot-matrix display */
+.nd-display {
+  grid-area: display;
+  position: relative;
+  min-width: 0;
+  padding: 9px 12px 8px;
+  border-radius: 5px;
+  background:
+    radial-gradient(120% 140% at 50% 0%, color-mix(in srgb, var(--nd-ink) 9%, transparent), transparent 60%),
+    var(--nd-glass);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  color: var(--nd-ink);
+  overflow: hidden;
+}
+.nd-display::after {
+  /* the glass over the segments: faint dot grid and a sheen */
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(170deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 40%),
+    radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.35) 0.6px, transparent 0.8px) 0 0 / 3px 3px;
+}
+
+.nd-row1 {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  white-space: nowrap;
+}
+.nd-freq {
+  font-family: var(--nd-dot);
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 10px color-mix(in srgb, var(--nd-ink) 70%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.nd-freq-num { display: inline-block; min-width: 4.1ch; text-align: right; }
+.nd-freq-unit {
+  font-size: 14px;
+  margin-left: 4px;
+  opacity: 0.7;
+}
+.nd-ps {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: clip;
+  font-family: var(--nd-dot);
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--nd-ink) 60%, transparent);
+}
+.nd-meter {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+  align-self: center;
+}
+.nd-bar {
+  display: block;
+  width: 3px;
+  background: currentColor;
+  opacity: 0.16;
+  transition: opacity 0.2s;
+}
+.nd-bar.nd-on { opacity: 0.95; box-shadow: 0 0 4px currentColor; }
+
+/* tuning scale with a needle; drag across it */
+.nd-scale {
+  position: relative;
+  height: 30px;
+  margin: 8px 2px 4px;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+.nd-scale-ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  height: 9px;
+  background:
+    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px calc(100% / 41)) 0 100% / 100% 5px no-repeat,
+    repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px calc(100% / 20.5)) 0 0 / 100% 9px no-repeat;
+  opacity: 0.4;
+}
+.nd-scale-num {
+  position: absolute;
+  top: 16px;
+  transform: translateX(-50%);
+  font-family: var(--nd-dot);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.55;
+}
+.nd-scale-mark {
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 3px;
+  margin-left: -2px;
+  background: currentColor;
+  opacity: 0.45;
+  transition: opacity 0.3s, box-shadow 0.3s;
+}
+.nd-scale-mark.nd-on { opacity: 1; box-shadow: 0 0 6px currentColor; }
+.nd-needle {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 20px;
+  margin-left: -1px;
+  background: #ff3b30;
+  box-shadow: 0 0 6px rgba(255, 59, 48, 0.9);
+  border-radius: 1px;
+}
+
+/* the scrolling RDS readout */
+.nd-rt {
+  position: relative;
+  height: 18px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--nd-dot);
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--nd-ink) 55%, transparent);
+  opacity: 0.85;
+}
+.nd-rt.nd-scroll {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.nd-rt-track { display: inline-block; white-space: pre; will-change: transform; }
+
+/* the tuning knob */
+.nd-knobwrap {
+  grid-area: knob;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.nd-knob {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  background:
+    radial-gradient(circle at 50% 50%, #0a0b0e 0 54%, transparent 55%),
+    repeating-conic-gradient(from 0deg, #2a2c33 0 4deg, #15161a 4deg 8deg);
+  box-shadow:
+    0 0 0 2px #060607,
+    0 6px 14px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  outline: none;
+}
+.nd-knob-cap {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.16), transparent 45%),
+    linear-gradient(160deg, #26282f, #0e0f12);
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.nd-knob-cap::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 3px;
+  height: 12px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--nd-ink);
+  box-shadow: 0 0 6px var(--nd-ink);
+}
+.nd-knob:focus-visible {
+  box-shadow:
+    0 0 0 2px #060607,
+    0 0 0 4px var(--nd-ink),
+    0 6px 14px rgba(0, 0, 0, 0.8);
+}
+.nd-knob-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--nd-label);
+}
+
+/* presets */
+.nd-presets {
+  grid-area: presets;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.nd-preset,
+.nd-pull,
+.nd-switch {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.nd-preset {
+  position: relative;
+  height: 34px;
+  border: 0;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #23252c, #16171c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 0 #050506, 0 3px 6px rgba(0, 0, 0, 0.5);
+  color: #b9bcc6;
+  font-family: var(--nd-sans);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  transition: transform 0.08s, color 0.3s;
+}
+.nd-preset::after {
+  /* a tiny lamp above the number lights for the tuned station */
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 10px;
+  height: 2px;
+  margin-left: -5px;
+  border-radius: 1px;
+  background: #2c2e35;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.nd-preset[aria-pressed='true'] { color: var(--nd-ink); }
+.nd-preset[aria-pressed='true']::after { background: var(--nd-ink); box-shadow: 0 0 6px var(--nd-ink); }
+.nd-preset:active { transform: translateY(1px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 0 #050506; }
+
+.nd-actions {
+  grid-area: actions;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 34px;
+}
+.nd-pull {
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--nd-ink) 55%, transparent);
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--nd-ink) 14%, #0b0c0f);
+  color: var(--nd-ink);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--nd-ink) 30%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 0.5s, transform 0.5s, visibility 0s linear 0.5s, background 0.2s;
+}
+.nd-locked .nd-pull {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.6s 0.25s, transform 0.6s 0.25s, visibility 0s, background 0.2s;
+}
+.nd-pull:hover { background: color-mix(in srgb, var(--nd-ink) 24%, #0b0c0f); }
+.nd-listen {
+  font-size: 13px;
+  color: var(--nd-label);
+  text-decoration: underline;
+  text-decoration-color: rgba(139, 143, 156, 0.4);
+  text-underline-offset: 3px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.nd-locked .nd-listen[href] { visibility: visible; opacity: 1; }
+.nd-listen:hover { color: #d9dbe2; }
+
+/* ---------- switches ---------- */
+.nd-switches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 0 6px;
+}
+.nd-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  height: 46px;
+  padding: 0 10px 0 10px;
+  border: 0;
+  border-radius: 6px;
+  text-align: left;
+  background: linear-gradient(180deg, #17181d, #0e0f12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 0 1px #050506, 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: #9da1ad;
+  transition: color 0.3s, transform 0.08s;
+}
+.nd-switch svg {
+  grid-row: 1 / span 2;
+  width: 22px;
+  height: 22px;
+}
+.nd-switch-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: #c5c8d1;
+}
+.nd-switch-state {
+  font-size: 12px;
+  line-height: 1.1;
+  color: var(--nd-label);
+}
+.nd-led {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #24262c;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.nd-switch:active { transform: translateY(1px); }
+.nd-switch[data-k='wipers'][data-level='1'] .nd-led { background: #cfd8ff; box-shadow: 0 0 6px #9fb3ff; }
+.nd-switch[data-k='wipers'][data-level='2'] .nd-led { background: #ffffff; box-shadow: 0 0 6px #ffffff, 0 0 12px #9fb3ff; }
+.nd-switch[data-k='lights'][aria-pressed='true'] .nd-led { background: #4a8cff; box-shadow: 0 0 8px #4a8cff; }
+.nd-switch[data-k='demist'][aria-pressed='true'] .nd-led { background: #ff9a3c; box-shadow: 0 0 8px #ff9a3c; }
+.nd-switch[data-k='indicator'].nd-blink .nd-led { background: #3dff7a; box-shadow: 0 0 8px #3dff7a; }
+.nd-switch[data-k='indicator'].nd-blink svg { color: #3dff7a; }
+.nd-switch[aria-pressed='true'],
+.nd-switch[data-level='1'],
+.nd-switch[data-level='2'] { color: #e3e5ec; }
+
+/* focus rings on every real control */
+.nd-preset:focus-visible,
+.nd-pull:focus-visible,
+.nd-switch:focus-visible,
+.nd-listen:focus-visible {
+  outline: 2px solid var(--nd-ink);
+  outline-offset: 3px;
+}
+
+.nd-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- wide but short: switches sit beside the radio ---------- */
+.nd-compact .nd-console {
+  width: 800px;
+  flex-direction: row;
+  align-items: flex-start;
+}
+.nd-compact .nd-unit { flex: 0 0 540px; }
+.nd-compact .nd-switches {
+  flex: 1;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 0;
+}
+
+/* ---------- narrow screens: the console spans the dash ---------- */
+.nd-narrow .nd-console {
+  width: calc(100% - 24px);
+  max-width: 460px;
+  gap: 10px;
+}
+.nd-narrow .nd-unit {
+  column-gap: 12px;
+  padding: 12px 12px 10px;
+}
+.nd-narrow .nd-freq { font-size: 28px; }
+.nd-narrow .nd-ps { font-size: 13px; letter-spacing: 0.02em; }
+.nd-narrow .nd-meter { height: 13px; }
+.nd-narrow .nd-row1 { gap: 8px; }
+.nd-narrow .nd-display { padding: 8px 10px 7px; }
+.nd-narrow .nd-knob { width: 68px; height: 68px; }
+.nd-narrow .nd-knob-cap { inset: 11px; }
+.nd-narrow .nd-presets { gap: 5px; }
+.nd-narrow .nd-preset { font-size: 13px; height: 36px; }
+.nd-narrow .nd-switches { gap: 6px; padding: 0; }
+.nd-narrow .nd-switch {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+  height: 58px;
+  padding: 6px 4px;
+  row-gap: 2px;
+}
+.nd-narrow .nd-switch svg { grid-row: auto; width: 20px; height: 20px; }
+.nd-narrow .nd-switch-label { font-size: 12px; }
+.nd-narrow .nd-switch-state { font-size: 11px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nd-pull,
+  .nd-locked .nd-pull,
+  .nd-listen,
+  .nd-bar,
+  .nd-preset,
+  .nd-preset::after,
+  .nd-scale-mark { transition: none; }
+}
