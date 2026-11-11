@@ -8,6 +8,7 @@
   const EXTRAS = window.SEASON_EXTRAS || {};
   const W = window.Weather;
   const Sound = window.Sound;
+  const Snip = window.Snippets || null;
 
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
@@ -504,10 +505,36 @@
       song.classList.toggle('is-long', top.t.length > 34);
       $('#f-from').textContent = 'From ' + src.title + ', ' + src.year + '.';
       $('#f-listen').href = listenUrl(top.t);
+      pick = top.t;
+      paintPlay();
+      // with the sound on, the forecast plays what it picks once the dials have settled
+      clearTimeout(settle);
+      if (touched && Snip && Sound && Sound.enabled && Snip.hasTitle(pick)) {
+        settle = setTimeout(() => { const c = Snip.current(); if (!c || c.title !== pick) Snip.playTitle(pick); }, 900);
+      }
       $('#f-also').textContent = 'If not that, then ' + ranked[1].s.t + ', or ' + ranked[2].s.t + '.';
       queueTick();
     }
-    [fr, fc, fl].forEach((i) => i.addEventListener('input', update));
+    let pick = '';
+    let touched = false;
+    let settle = 0;
+    const playBtn = $('#f-play');
+    function paintPlay() {
+      if (!playBtn) return;
+      playBtn.hidden = !(Snip && Snip.hasTitle(pick));
+      const c = Snip && Snip.current();
+      const on = !!(c && c.title === pick);
+      playBtn.textContent = on ? 'Stop the snippet' : 'Play a snippet';
+      playBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    if (playBtn && Snip) {
+      playBtn.addEventListener('click', () => {
+        const c = Snip.current();
+        if (c && c.title === pick) Snip.stop(); else Snip.playTitle(pick);
+      });
+      Snip.onChange(paintPlay);
+    }
+    [fr, fc, fl].forEach((i) => i.addEventListener('input', () => { touched = true; update(); }));
     update();
   })();
 
@@ -527,6 +554,7 @@
     roomBox.hidden = false;
     document.body.classList.add('locked');
     roomOpen = true;
+    if (Snip) Snip.stop();
     if (Sound && Sound.enabled) Sound.set(false); // the room has its own sound switch
     queueTick();
     $('#room-close').focus();
@@ -550,7 +578,13 @@
     ALBUMS.forEach((a) => {
       const m = META[a.id] || {};
       const warm = !COLD_SEASONS[m.season];
-      const tracks = el('ol', null, a.tracks.map((t) => el('li', { text: t.title })));
+      // every song is a play button for its 30-second preview
+      const tracks = el('ol', { class: 'tracks' }, a.tracks.map((t) => {
+        if (!Snip || !Snip.has(a.id, t.n)) return el('li', null, [el('span', { class: 'track is-silent', text: t.title }), el('small', { text: ' no preview' })]);
+        const b = el('button', { type: 'button', class: 'track', 'aria-pressed': 'false', 'data-album': a.id, 'data-n': t.n, title: 'Play a 30-second preview' }, [el('i', { 'aria-hidden': 'true' }), t.title]);
+        b.addEventListener('click', () => Snip.toggle(a.id, t.n, 'album'));
+        return el('li', null, [b]);
+      }));
       const open = el('button', { type: 'button', class: 'btn', text: 'Open the room' });
       open.setAttribute('aria-label', 'Open the room for ' + a.title);
       open.addEventListener('click', () => openRoom(a.id));
@@ -560,12 +594,22 @@
           el('h3', { class: 'album__title', text: a.title }),
           el('p', { class: 'album__meta', text: 'Released ' + fmtDate(m.date) + ', in ' + m.season + '. ' + a.tracks.length + ' songs.' }),
           el('p', { class: 'album__blurb', text: m.blurb + ' The room: ' + m.room.charAt(0).toLowerCase() + m.room.slice(1) + '.' }),
-          el('details', null, [el('summary', { text: 'All ' + a.tracks.length + ' songs' }), tracks]),
+          el('details', null, [el('summary', { text: 'All ' + a.tracks.length + ' songs, with snippets' }), tracks]),
         ]),
         open,
       ]));
     });
   })();
+
+  // keep every tracklist button in step with what is playing
+  if (Snip) {
+    Snip.onChange((c) => {
+      $$('.track[data-album]').forEach((b) => {
+        const on = !!c && c.albumId === b.dataset.album && String(c.n) === b.dataset.n;
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    });
+  }
 
   /* ---------------- night drive ---------------- */
 
@@ -579,6 +623,7 @@
           reducedMotion: () => reduced.matches,
           openRoom,
           listenUrl: (track) => listenUrl(track.title),
+          previews: window.SEASON_PREVIEWS || null,
         });
         return;
       } catch (err) {

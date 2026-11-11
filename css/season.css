@@ -422,6 +422,18 @@ p { margin: 0 0 1em; }
 
 .cover { display: block; width: 150px; height: 150px; object-fit: cover; background: #0b0e14; box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6); }
 
+.tracks li small { color: var(--faint); font-size: 13px; }
+.track { appearance: none; background: none; border: 0; padding: 2px 0; margin: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; display: inline-flex; align-items: baseline; gap: 9px; }
+.track i { flex: none; width: 0; height: 0; border-left: 8px solid var(--faint); border-top: 5px solid transparent; border-bottom: 5px solid transparent; transform: translateY(-1px); }
+.track:hover { color: #fff; }
+.track:hover i { border-left-color: #fff; }
+.track[aria-pressed='true'] { color: var(--sodium); }
+.track[aria-pressed='true'] i { width: 8px; height: 8px; border: 0; background: var(--sodium); transform: none; }
+.track.is-silent { cursor: default; padding-left: 17px; }
+.verdict__more { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.verdict__more .btn[aria-pressed='true'] { border-color: var(--sodium); color: var(--sodium); }
+.verdict__more .btn[aria-pressed='true']:hover { background: none; }
+
 /* ---------- sign maker ---------- */
 
 .signer { display: grid; grid-template-columns: minmax(0, 580px) 300px; justify-content: start; gap: clamp(18px, 3vw, 40px); align-items: start; }

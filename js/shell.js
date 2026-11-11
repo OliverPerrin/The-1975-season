@@ -429,6 +429,8 @@
       api.mount(root, ctx);
     }
     current = { i, album, root, api, audio };
+    document.body.dataset.era = album.id;
+    if (window.Snippets) window.Snippets.offerAlbum(album.id);
     if (location.hash !== '#/' + album.id) history.pushState(null, '', '#/' + album.id);
     document.title = album.title + ' (' + album.year + ')';
 
@@ -446,6 +448,8 @@
     setMode('busy');
     const c = current;
     current = null;
+    delete document.body.dataset.era;
+    if (window.Snippets) { window.Snippets.stop(); window.Snippets.offerAlbum(null); }
     if (location.hash) history.pushState(null, '', location.pathname + location.search);
     document.title = 'The 1975, in five rectangles';
     hub.style.visibility = '';
@@ -479,6 +483,19 @@
   window.addEventListener('hashchange', route);
 
   leaveBtn.addEventListener('click', () => leave());
+
+  // A room's "listen" link plays that song's 30-second preview here instead of leaving the room.
+  stage.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('a[href^="https://open.spotify.com/search/"]');
+    if (!a || !window.Snippets || !current) return;
+    let q = '';
+    try { q = decodeURIComponent(a.getAttribute('href').split('/search/')[1] || ''); } catch (err) { return; }
+    const t = current.album.tracks.find((x) => q === x.title + ' The 1975');
+    if (t && window.Snippets.has(current.album.id, t.n)) {
+      e.preventDefault();
+      window.Snippets.toggle(current.album.id, t.n);
+    }
+  });
 
   function paintSound(on) {
     soundBtn.textContent = on ? 'sound on' : 'sound off';

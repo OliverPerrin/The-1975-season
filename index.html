@@ -101,7 +101,7 @@
           <p class="verdict__label">Put this on</p>
           <p id="f-song" class="verdict__song"></p>
           <p id="f-from" class="verdict__from"></p>
-          <p class="verdict__more"><a id="f-listen" href="#" target="_blank" rel="noopener">Find it on Spotify</a></p>
+          <p class="verdict__more"><button id="f-play" type="button" class="btn" aria-pressed="false" hidden>Play a snippet</button> <a id="f-listen" href="#" target="_blank" rel="noopener">Find it on Spotify</a></p>
           <p id="f-also" class="verdict__also"></p>
         </div>
       </div>
@@ -114,7 +114,7 @@
     <div class="wrap">
       <div class="head">
         <h2>The long way home</h2>
-        <p>Tune the radio. Every station is an album. Pull over when you want to go inside.</p>
+        <p>Tune the radio. Every station is an album, and with the sound on it plays the songs. Pull over when you want to go inside.</p>
       </div>
     </div>
     <div id="drive-mount" class="drive-host"></div>
@@ -161,7 +161,7 @@
     <div class="credits">
       <div>
         <h3>About this site</h3>
-        <p>Fan-made, for fun. It is not affiliated with the band or their label. Song titles, album titles, the album covers and the band’s logo belong to their owners; they are shown only to identify the band and the albums. No lyrics are quoted, no music is sampled, and every sound is synthesised in your browser.</p>
+        <p>Fan-made, for fun. It is not affiliated with the band or their label. Song titles, album titles, the album covers and the band’s logo belong to their owners; they are shown only to identify the band and the albums. No lyrics are quoted. The song clips are Apple’s own 30-second previews, streamed from Apple and never stored here; every other sound is synthesised in your browser.</p>
         <p><a href="https://github.com/OliverPerrin/The-1975-season" target="_blank" rel="noopener">The source is on GitHub.</a></p>
       </div>
       <div>
@@ -194,6 +194,8 @@
 <script src="js/data.js"></script>
 <script src="js/audio.js"></script>
 <script src="assets/photos/manifest.js"></script>
+<script src="js/season/previews.js"></script>
+<script src="js/season/player.js"></script>
 <script src="js/season/songs.js"></script>
 <script src="js/season/weather.js"></script>
 <script src="js/season/drive.js"></script>

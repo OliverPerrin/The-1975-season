@@ -274,6 +274,11 @@
     var reducedFn = typeof opts.reducedMotion === 'function' ? opts.reducedMotion : function () { return false; };
     var openRoom = typeof opts.openRoom === 'function' ? opts.openRoom : function () {};
     var listenUrl = typeof opts.listenUrl === 'function' ? opts.listenUrl : null;
+    // Real 30-second previews for the stations, when the host passes them:
+    // album id -> track number -> { id, url, link }. Without them the stations play the synth sketches.
+    var previews = opts.previews && typeof opts.previews === 'object' ? opts.previews : null;
+    var radioEl = null, radioSrc = null, radioStation = null, radioTrack = null;
+    var radioWant = false, radioYield = false, radioFailed = {};
 
     var stations = [];
     ORDER.forEach(function (id, i) {
@@ -348,7 +353,7 @@
     var pull = mk('button', 'nd-pull', { type: 'button' });
     pull.textContent = 'Pull over here';
     var listen = null;
-    if (listenUrl) {
+    if (listenUrl || previews) {
       listen = mk('a', 'nd-listen', { target: '_blank', rel: 'noopener noreferrer' });
       listen.textContent = 'Find this track';
     }
@@ -580,12 +585,14 @@
       var id = locked ? locked.id : null;
       if (id !== lockedId) {
         lockedId = id;
+        radioYield = false;
         root.classList.toggle('nd-locked', !!locked);
         if (locked) {
           pull.setAttribute('aria-label', 'Pull over here: open the room for ' + locked.album.title);
           live.textContent = 'Tuned to ' + freq.toFixed(1) + ' FM. ' + locked.album.title + ', ' + locked.album.year + '.';
           lastLockedId = id;
           setRt(locked);
+          if (radioTrack && radioStation === locked) showTrack(locked, radioTrack); // the song may have started a beat before the lock
           stationSting(locked.id);
         } else {
           setRt(null);
@@ -617,6 +624,7 @@
       updateListen();
     }
     function currentTrack() {
+      if (radioTrack && rtStation && rtStation === radioStation) return radioTrack;
       if (!rtStation || !rtStation.tracks.length) return null;
       if (!rtWidth) return rtStation.tracks[0];
       // which item is near the left of the readout
@@ -628,6 +636,9 @@
     var listenIdx = -1;
     function updateListen() {
       if (!listen) return;
+      if (radioTrack && rtStation && rtStation === radioStation) return; // showTrack owns the link while a real song plays
+      if (!listenUrl) { listen.removeAttribute('href'); return; }
+      listen.textContent = 'Find this track';
       var t = currentTrack();
       if (!t) { listen.removeAttribute('href'); return; }
       if (t.n === listenIdx && listen.getAttribute('href')) return;
@@ -2122,6 +2133,81 @@
       }
       return buf;
     }
+    /* ---------- real songs on the radio ---------- */
+    function hasPreview(st, t) {
+      return !!(previews && t && previews[st.id] && previews[st.id][t.n] && !radioFailed[st.id + ':' + t.n]);
+    }
+    function radioNext(st, after) { // the next song on this album that has a preview
+      var list = st.tracks.filter(function (t) { return hasPreview(st, t); });
+      for (var i = 0; i < list.length; i++) if (list[i].n > after) return list[i];
+      return list[0] || null;
+    }
+    function radioFirst(st) { // a station is found mid-broadcast: start on one of the singles
+      var singles = st.tracks.filter(function (t) { return t.single && hasPreview(st, t); });
+      return singles.length ? singles[Math.floor(Math.random() * singles.length)] : radioNext(st, 0);
+    }
+    function radioEnsureEl() {
+      if (radioEl) return radioEl;
+      radioEl = new Audio();
+      radioEl.crossOrigin = 'anonymous';
+      radioEl.preload = 'auto';
+      radioEl.addEventListener('ended', function () {
+        if (radioStation && radioTrack) radioPlay(radioStation, radioNext(radioStation, radioTrack.n));
+      });
+      radioEl.addEventListener('error', function () {
+        if (!radioStation || !radioTrack) return;
+        var st = radioStation, t = radioTrack, p = previews[st.id][t.n];
+        var skip = function () { radioFailed[st.id + ':' + t.n] = true; if (radioStation === st && radioTrack === t) radioPlay(st, radioNext(st, t.n)); };
+        if (p.retried || !window.fetch) { skip(); return; }
+        p.retried = true; // preview links move now and then: ask Apple where this one lives today
+        window.fetch('https://itunes.apple.com/lookup?id=' + p.id).then(function (r) { return r.json(); }).then(function (d) {
+          var u = d && d.results && d.results[0] && d.results[0].previewUrl;
+          if (!u) throw new Error('no preview');
+          p.url = u;
+          if (radioStation === st && radioTrack === t) radioPlay(st, t);
+        }).catch(skip);
+      });
+      return radioEl;
+    }
+    function radioPlay(st, t) {
+      radioStation = st;
+      if (!t) { radioTrack = null; if (radioEl) radioEl.pause(); return; }
+      radioTrack = t;
+      radioEnsureEl().src = previews[st.id][t.n].url;
+      radioResume();
+    }
+    function radioResume() {
+      if (!radioEl || !radioTrack) return;
+      radioWant = true;
+      var pr = radioEl.play();
+      if (pr && pr.catch) pr.catch(function () {});
+      showTrack(radioStation, radioTrack);
+      try { document.dispatchEvent(new CustomEvent('season:music', { detail: 'radio' })); } catch (e) {}
+    }
+    function radioHold() { radioWant = false; if (radioEl) radioEl.pause(); }
+    function radioLive() { return !!(radioEl && radioTrack && !radioEl.paused && !radioEl.error); }
+    function showTrack(st, t) { // the readout names the song that is actually playing
+      if (rtStation !== st || !t) return;
+      rtText = t.n + '  ' + t.title + '      ' + st.album.title + ' (' + st.album.year + ')      ';
+      if (isReduced()) { rtTrack.textContent = t.n + '  ' + t.title; rt.classList.remove('nd-scroll'); }
+      else { rtTrack.textContent = rtText + rtText; rt.classList.add('nd-scroll'); }
+      rtOffset = 0; rtWidth = 0;
+      if (listen) {
+        listen.setAttribute('href', previews[st.id][t.n].link);
+        listen.textContent = 'Preview from Apple Music';
+        listen.setAttribute('aria-label', t.title + ' on Apple Music (opens in a new tab)');
+      }
+    }
+    if (previews) {
+      var onOtherMusic = function (e) { if (e.detail !== 'radio') { radioYield = true; radioHold(); } };
+      document.addEventListener('season:music', onOtherMusic);
+      cleanups.push(function () { document.removeEventListener('season:music', onOtherMusic); });
+      // browsers that only start audio from a tap get another go whenever the visitor touches the car
+      var nudge = function () { radioYield = false; if (radioWant && radioEl && radioEl.paused) { var pr = radioEl.play(); if (pr && pr.catch) pr.catch(function () {}); } };
+      root.addEventListener('pointerup', nudge);
+      root.addEventListener('keyup', nudge);
+    }
+
     function buildAudio() {
       if (A || disposed || !audio || !audio.enabled) return;
       var ac, out;
@@ -2165,6 +2251,16 @@
         })();
         music.connect(dry).connect(radio);
         music.connect(conv).connect(wet).connect(radio);
+        // real songs come out of the same small speaker
+        if (previews) {
+          try {
+            radioEnsureEl();
+            if (!radioSrc) radioSrc = ac.createMediaElementSource(radioEl);
+            var radioIn = G(0.62);
+            radioSrc.connect(radioIn);
+            radioIn.connect(music);
+          } catch (e) { /* no real songs then; the synth sketches still play */ }
+        }
 
         srcs.forEach(function (s) { try { s.start(); } catch (e) {} });
         master.gain.setTargetAtTime(onScreen && visible ? 1 : 0, ac.currentTime, 0.6);
@@ -2179,13 +2275,15 @@
       if (!A) return;
       var a = A; A = null;
       clearInterval(a.timer);
+      radioHold();
+      if (radioSrc) { try { radioSrc.disconnect(); } catch (e) {} }
       try { a.master.gain.setTargetAtTime(0, a.ac.currentTime, 0.05); } catch (e) {}
       setTimeout(function () {
         a.srcs.forEach(function (s) { try { s.stop(); } catch (e) {} });
         a.nodes.forEach(function (n) { try { n.disconnect(); } catch (e) {} });
       }, 250);
     }
-    function audioPause() { if (A) { A.paused = true; try { A.master.gain.setTargetAtTime(0, A.ac.currentTime, 0.15); } catch (e) {} } }
+    function audioPause() { radioHold(); if (A) { A.paused = true; try { A.master.gain.setTargetAtTime(0, A.ac.currentTime, 0.15); } catch (e) {} } }
     function audioResume() { if (A && onScreen && visible) { A.paused = false; try { A.master.gain.setTargetAtTime(1, A.ac.currentTime, 0.4); } catch (e) {} } }
     function audioFrame() {
       if (!A) return;
@@ -2211,6 +2309,17 @@
       if (id !== A.song) {
         A.song = id; A.stepN = 0; A.next = now + 0.05;
         if (id) A.wet.gain.setTargetAtTime(SONGS[id].rev, now, 0.1);
+      }
+      // a real song, if there is one for this station: tune it in and let the synth stand down
+      if (previews && radioSrc) {
+        var st = id && sig.s > 0.5 ? sig.st : null;
+        if (st && !radioYield) {
+          if (radioStation !== st) radioPlay(st, radioFirst(st));
+          else if (radioTrack && radioEl.paused && !radioWant) radioResume();
+        } else if (radioEl && !radioEl.paused) {
+          radioHold();
+        }
+        if (radioLive()) { A.wet.gain.setTargetAtTime(0.025, now, 0.2); return; }
       }
       if (!id) return;
       var song = SONGS[id];
@@ -2332,6 +2441,7 @@
         cleanups.length = 0;
         if (unsubAudio) { try { unsubAudio(); } catch (e) {} }
         teardownAudio();
+        if (radioEl) { radioEl.pause(); radioEl.removeAttribute('src'); try { radioEl.load(); } catch (e) {} }
         if (root.parentNode) root.parentNode.removeChild(root);
       }
     };

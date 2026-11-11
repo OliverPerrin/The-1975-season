@@ -296,3 +296,7 @@ body[data-mode='hub'] #chrome { color: var(--hub-ink); transition: color 320ms l
    so it inverts whatever is behind it rather than taking a single ink. */
 #hub-title, #hub-hint, #years { color: #fff; mix-blend-mode: difference; }
 body[data-mode='hub'] #chrome { color: #fff; mix-blend-mode: difference; }
+
+/* The hint always sits wholly inside one album's band, so it can take that album's ink
+   (inverting fails on the mid-grey of the 2022 print). */
+#hub-hint { mix-blend-mode: normal; color: var(--hub-ink-mid); }
