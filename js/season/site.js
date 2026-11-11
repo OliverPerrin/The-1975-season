@@ -121,6 +121,7 @@
     }
     // inside the car the top bar gets out of the way
     document.body.classList.toggle('in-drive', driveVis > 0.8);
+    document.body.classList.toggle('scrolled', window.scrollY > 60);
     if (best) navLinks.forEach((a) => a.setAttribute('aria-current', a.getAttribute('href') === '#' + best.id ? 'true' : 'false'));
 
     if (!reduced.matches) {
@@ -236,6 +237,22 @@
       node.textContent = 'Today is ' + today + '. Out of season, ' + days + (days === 1 ? ' day' : ' days') + ' until September.';
     }
   })();
+
+  // The neon rectangle is tall, like the band's own, and hangs in the gap between the top bar and the headline.
+  function fitSign() {
+    if (!W || !W.setSignBox) return;
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
+    const top = $('#nav').getBoundingClientRect().height + vh * 0.02;
+    const bottom = $('.hero h1').getBoundingClientRect().top + window.scrollY - vh * 0.035;
+    const room = Math.max(vh * 0.16, bottom - top);
+    const hh = Math.min(0.27, room / 2 / vh);
+    W.setSignBox(1 - (top + room / 2) / vh, Math.min(hh * 0.72, (vw / vh) * 0.36), hh);
+  }
+  fitSign();
+  window.addEventListener('resize', fitSign);
+  window.addEventListener('load', fitSign);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitSign);
 
   // one swipe across the glass on arrival, so it is obvious the glass can be wiped
   (function firstWipe() {
@@ -538,7 +555,7 @@
       open.setAttribute('aria-label', 'Open the room for ' + a.title);
       open.addEventListener('click', () => openRoom(a.id));
       list.appendChild(el('li', { class: 'album' + (warm ? ' is-warm' : '') }, [
-        el('div', { class: 'emb emb--' + a.id, 'aria-hidden': 'true' }),
+        el('img', { class: 'cover', src: 'assets/covers/' + a.id + '.jpg', alt: 'Album cover of ' + a.title, width: 500, height: 500, loading: 'lazy', decoding: 'async' }),
         el('div', null, [
           el('h3', { class: 'album__title', text: a.title }),
           el('p', { class: 'album__meta', text: 'Released ' + fmtDate(m.date) + ', in ' + m.season + '. ' + a.tracks.length + ' songs.' }),

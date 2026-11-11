@@ -24,7 +24,9 @@ then visit http://localhost:4975.
 
 ## About
 
-Fan-made, for fun. It is not affiliated with the band or their label. Song and album titles belong to their owners. No lyrics are quoted, no album artwork is used and no music is sampled: every sound is synthesised in the browser, and everything except the photographs below is drawn in code.
+Fan-made, for fun. It is not affiliated with the band or their label. Song and album titles belong to their owners. No lyrics are quoted and no music is sampled: every sound is synthesised in the browser, and everything except the album covers and the photographs below is drawn in code.
+
+The five album covers in `assets/covers/` and the site icon (the band's box logo, cropped from the first album's cover) are the copyright of the band and their label. They are shown at small size only to identify the band and each album, and they are not covered by any licence in this repository.
 
 ## Photo credits
 

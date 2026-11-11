@@ -358,9 +358,7 @@ void main(){
     gl.uniform3fv(U.uC2, state.pal[2]);
     gl.uniform3fv(U.uC3, state.pal[3]);
     gl.uniform3fv(U.uSignCol, state.signCol);
-    const asp = canvas.width / canvas.height;
-    const hw = Math.min(0.4, asp * 0.4);
-    gl.uniform3f(U.uSignBox, asp < 1 ? 0.7 : 0.665, hw, asp < 1 ? hw * 0.62 : hw * 0.4);
+    gl.uniform3f(U.uSignBox, signBox[0], signBox[1], signBox[2]);
     gl.uniform3f(U.uTap, tap.x, tap.y, Math.min(9, (performance.now() - tap.at) / 1000));
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
@@ -371,6 +369,7 @@ void main(){
   const LEAF_COLS = ['#c8641e', '#e39a2f', '#8d3b1c', '#d9b24a', '#6e2f18', '#b8862b'];
   const MAPLE = [[0, -1], [0.25, -0.45], [0.8, -0.6], [0.55, -0.1], [1, 0.15], [0.45, 0.3], [0.5, 0.8], [0, 0.55], [-0.5, 0.8], [-0.45, 0.3], [-1, 0.15], [-0.55, -0.1], [-0.8, -0.6], [-0.25, -0.45]];
   const tap = { x: 0, y: 0, at: -1e6 };
+  const signBox = [0.69, 0.15, 0.21]; // centre height, half width, half height: a tall rectangle
   let wind = 0;
   let lastScroll = window.scrollY;
   let leavesDrawn = false;
@@ -498,6 +497,8 @@ void main(){
       if (w.signCol) for (let j = 0; j < 3; j++) target.signCol[j] = w.signCol[j];
     },
     wipeAt,
+    /* Where the neon rectangle hangs, in screen heights measured from the bottom. */
+    setSignBox(cy, hw, hh) { signBox[0] = cy; signBox[1] = hw; signBox[2] = hh; },
     pause(on) { paused = !!on; },
   };
 })();
