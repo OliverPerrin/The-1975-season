@@ -467,6 +467,9 @@ p { margin: 0 0 1em; }
 .credits__photos ul { columns: 2; column-gap: 26px; }
 .credits__photos li { break-inside: avoid; }
 .credits__photos:has(ul:empty) { display: none; }
+.copyright { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; margin: 18px 0 0; padding: 0 2px; font-size: 14.5px; color: var(--dim); }
+.copyright a { color: var(--ink); text-underline-offset: 3px; }
+.copyright a:hover { color: var(--sodium); }
 
 /* ---------- room overlay ---------- */
 
